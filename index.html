@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gravity Watercolor</title>
+
+<style>
+body{
+margin:0;
+overflow:hidden;
+background:#fafafa;
+}
+
+canvas{
+display:block;
+}
+
+#permission{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+padding:15px 20px;
+background:#222;
+color:white;
+border-radius:10px;
+font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+<div id="permission">タップして傾きセンサーを有効化</div>
+
+<script>
+
+const canvas = document.getElementById("canvas")
+const ctx = canvas.getContext("2d")
+
+canvas.width = window.innerWidth
+canvas.height = window.innerHeight
+
+let drops = []
+
+let gravityX = 0
+let gravityY = 0
+
+// インク生成
+function createDrop(x,y){
+
+drops.push({
+x:x,
+y:y,
+vx:0,
+vy:0,
+size:20 + Math.random()*20,
+alpha:1
+})
+
+}
+
+// タップでインク
+canvas.addEventListener("touchstart",(e)=>{
+
+let t = e.touches[0]
+createDrop(t.clientX,t.clientY)
+
+})
+
+// 傾き取得
+function enableOrientation(){
+
+if (typeof DeviceOrientationEvent.requestPermission === "function"){
+
+DeviceOrientationEvent.requestPermission().then(permissionState => {
+
+if(permissionState === "granted"){
+
+window.addEventListener("deviceorientation",handleOrientation)
+
+}
+
+})
+
+}else{
+
+window.addEventListener("deviceorientation",handleOrientation)
+
+}
+
+}
+
+function handleOrientation(event){
+
+gravityX = event.gamma * 0.02
+gravityY = event.beta * 0.02
+
+}
+
+document.getElementById("permission").onclick = ()=>{
+
+enableOrientation()
+document.getElementById("permission").style.display="none"
+
+}
+
+// 描画ループ
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+drops.forEach(d=>{
+
+// 重力
+d.vx += gravityX
+d.vy += gravityY
+
+// 移動
+d.x += d.vx
+d.y += d.vy
+
+// 減速（水の抵抗）
+d.vx *= 0.98
+d.vy *= 0.98
+
+// 薄くなる
+d.alpha -= 0.002
+
+// 水彩描画
+let gradient = ctx.createRadialGradient(
+d.x,d.y,0,
+d.x,d.y,d.size
+)
+
+gradient.addColorStop(0,`rgba(30,30,30,${d.alpha})`)
+gradient.addColorStop(1,`rgba(30,30,30,0)`)
+
+ctx.fillStyle = gradient
+
+ctx.beginPath()
+ctx.arc(d.x,d.y,d.size,0,Math.PI*2)
+ctx.fill()
+
+})
+
+// 消える
+drops = drops.filter(d=>d.alpha>0)
+
+requestAnimationFrame(draw)
+
+}
+
+draw()
+
+</script>
+
+</body>
+</html>
