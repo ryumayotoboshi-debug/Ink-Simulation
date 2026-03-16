@@ -79,7 +79,7 @@ py:y,
 vx:0,
 vy:0,
 
-size:18 + Math.random()*8,
+size:26 + Math.random()*12,
 
 alpha:1
 
@@ -128,13 +128,13 @@ window.addEventListener("deviceorientation",handleOrientation)
 
 function handleOrientation(event){
 
-/* iPhoneの傾き方向を自然に補正 */
-
 let beta = event.beta
 let gamma = event.gamma
 
-gravityX = gamma * 0.003
-gravityY = beta * 0.003
+/* 傾き方向を自然に */
+
+gravityX = gamma * 0.004
+gravityY = beta * 0.004
 
 }
 
@@ -155,18 +155,18 @@ function draw(){
 
 /* 軌跡フェード */
 
-ctx.fillStyle="rgba(255,255,255,0.02)"
+ctx.fillStyle="rgba(255,255,255,0.015)"
 ctx.fillRect(0,0,canvas.width,canvas.height)
 
 
 
 drops.forEach(d=>{
 
-// 前位置保存
+// 前位置
 d.px = d.x
 d.py = d.y
 
-// 重力
+// 重力（流れ）
 d.vx += gravityX
 d.vy += gravityY
 
@@ -174,15 +174,16 @@ d.vy += gravityY
 d.x += d.vx
 d.y += d.vy
 
-// 摩擦
-d.vx *= 0.97
-d.vy *= 0.97
+// 慣性（水っぽく）
+d.vx *= 0.985
+d.vy *= 0.985
 
 // 水彩拡散
-d.size += 0.03
+d.size += 0.05
 
-// 薄くなる
-d.alpha -= 0.0009
+// 透明化
+d.alpha -= 0.0008
+
 
 
 // 筆跡描画
@@ -193,7 +194,6 @@ ctx.moveTo(d.px,d.py)
 ctx.lineTo(d.x,d.y)
 
 ctx.lineWidth = d.size
-
 ctx.lineCap = "round"
 
 ctx.strokeStyle = `rgba(20,20,20,${d.alpha})`
