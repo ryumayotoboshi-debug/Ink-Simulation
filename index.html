@@ -131,10 +131,10 @@ function handleOrientation(event){
 let beta = event.beta
 let gamma = event.gamma
 
-/* 傾き方向を自然に */
+/* かなり弱い重力 */
 
-gravityX = gamma * 0.004
-gravityY = beta * 0.004
+gravityX = gamma * 0.0012
+gravityY = beta * 0.0012
 
 }
 
@@ -155,38 +155,38 @@ function draw(){
 
 /* 軌跡フェード */
 
-ctx.fillStyle="rgba(255,255,255,0.015)"
+ctx.fillStyle="rgba(255,255,255,0.01)"
 ctx.fillRect(0,0,canvas.width,canvas.height)
 
 
 
 drops.forEach(d=>{
 
-// 前位置
 d.px = d.x
 d.py = d.y
 
-// 重力（流れ）
+/* ゆっくり流れる */
+
 d.vx += gravityX
 d.vy += gravityY
 
-// 移動
 d.x += d.vx
 d.y += d.vy
 
-// 慣性（水っぽく）
-d.vx *= 0.985
-d.vy *= 0.985
+/* 慣性強め */
 
-// 水彩拡散
-d.size += 0.05
+d.vx *= 0.992
+d.vy *= 0.992
 
-// 透明化
-d.alpha -= 0.0008
+/* 水彩拡散 */
+
+d.size += 0.03
+
+/* フェード */
+
+d.alpha -= 0.0006
 
 
-
-// 筆跡描画
 
 ctx.beginPath()
 
