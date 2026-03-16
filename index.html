@@ -4,17 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Gravity Watercolor</title>
+<title>Gravity Ink</title>
 
 <style>
 
 body{
 margin:0;
 overflow:hidden;
-background:#eae7df;
+background:#ffffff;
 }
 
-/* 紙テクスチャ */
+/* 白い紙テクスチャ */
 body::before{
 content:"";
 position:fixed;
@@ -23,7 +23,7 @@ left:0;
 width:100%;
 height:100%;
 background-image:url("https://www.transparenttextures.com/patterns/paper-fibers.png");
-opacity:0.35;
+opacity:0.15;
 pointer-events:none;
 }
 
@@ -75,7 +75,7 @@ y:y,
 vx:0,
 vy:0,
 
-size:25 + Math.random()*15,
+size:3 + Math.random()*2,
 
 alpha:1
 
@@ -91,7 +91,6 @@ let t = e.touches[0]
 createDrop(t.clientX,t.clientY)
 
 })
-
 
 
 // 傾き許可
@@ -120,8 +119,10 @@ window.addEventListener("deviceorientation",handleOrientation)
 
 function handleOrientation(event){
 
-gravityX = event.gamma * 0.002
-gravityY = event.beta * 0.002
+/* 傾き方向を自然にする補正 */
+
+gravityX = event.gamma * 0.0015
+gravityY = event.beta * 0.0015
 
 }
 
@@ -138,8 +139,9 @@ document.getElementById("permission").style.display="none"
 // 描画ループ
 function draw(){
 
-// 軌跡フェード
-ctx.fillStyle="rgba(234,231,223,0.05)"
+/* 軌跡フェード */
+
+ctx.fillStyle="rgba(255,255,255,0.03)"
 ctx.fillRect(0,0,canvas.width,canvas.height)
 
 
@@ -149,32 +151,29 @@ drops.forEach(d=>{
 d.vx += gravityX
 d.vy += gravityY
 
-
 // 移動
 d.x += d.vx
 d.y += d.vy
 
+// 摩擦
+d.vx *= 0.97
+d.vy *= 0.97
 
-// 抵抗
-d.vx *= 0.96
-d.vy *= 0.96
-
-
-// 水彩拡散
-d.size += 0.02
-
+// わずかな拡散
+d.size += 0.005
 
 // 薄くなる
-d.alpha -= 0.001
+d.alpha -= 0.0008
 
 
+// 水彩描画
 let gradient = ctx.createRadialGradient(
 d.x,d.y,0,
 d.x,d.y,d.size
 )
 
-gradient.addColorStop(0,`rgba(30,30,30,${d.alpha})`)
-gradient.addColorStop(1,`rgba(30,30,30,0)`)
+gradient.addColorStop(0,`rgba(20,20,20,${d.alpha})`)
+gradient.addColorStop(1,`rgba(20,20,20,0)`)
 
 ctx.fillStyle = gradient
 
@@ -183,7 +182,6 @@ ctx.arc(d.x,d.y,d.size,0,Math.PI*2)
 ctx.fill()
 
 })
-
 
 drops = drops.filter(d=>d.alpha>0)
 
